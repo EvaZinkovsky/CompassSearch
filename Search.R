@@ -7,7 +7,7 @@ library(tidyverse)
 # CompassReport.csv is assigned to a variable "compass"
 compass <- read.csv("data/CompassReport.csv")
 
-# select useful rows for the table
+# select useful columns for the table
 CompassColumns <- select(compass, Traveller.Name,Departure.Date,Return.Date,Cost.Object,Line.Manager.Name,Endorser.Name,Status,Base.Contacts,Country,City,Segment.Start.Date,Segment.End.Date)
 
 #convert data formats so that they can be sorted later on
@@ -17,17 +17,19 @@ CompassColumns$Segment.Start.Date <- as.Date(CompassColumns$Segment.Start.Date, 
 CompassColumns$Segment.End.Date <- as.Date(CompassColumns$Segment.End.Date, format = "%d/%m/%Y")
 
 # select all rows which have Michael as the line manager
-CompassRows0 <- filter(CompassColumns[grep("*BAT117", CompassColumns$Line.Manager.Name),])
+CompassRows0 <- CompassColumns %>%
+  filter(grepl("*BAT117",Line.Manager.Name))
 
-#select all rows which have Michael, Mario, Julianne, Lilly, Lynne, Ben,Di, Katharina, Larelle, Dean, Peter, Jaci, Uday, Anthony, Uta, Enli, Ryan, Mark,Andy as line managers
-# these research director, group leaders, team leaders
-CompassRows1 <- filter(CompassColumns[grep("*BAT117|*HER16G|*LIL016|*LIM05D|*MAC53H|*MAC488|*MAY137|*WAH006|*MCM168|*HOL353|*WIL99R|*BRO753|*NID001|*RIN019|*STO275|*WAN076|*FAR218|*THO734|*HAL33X", CompassColumns$Line.Manager.Name),])
+#select all rows which have Mario, Julianne, Lilly, Lynne, Ben,Di, Katharina, Larelle, Dean, Peter, Jaci, Uday, Anthony, Uta, Enli, Ryan, Mark, Andy, Loretta as line managers
+# these are group leaders, team leaders
+CompassRows1 <- CompassColumns %>% 
+  filter(grepl("*HER16G|*LIL016|*LIM05D|*MAC53H|*MAC488|*MAY137|*WAH006|*MCM168|*HOL353|*WIL99R|*BRO753|*NID001|*RIN019|*STO275|*WAN076|*FAR218|*THO734|*HAL33X|*CLA473", Line.Manager.Name))
 
-# select all rows that have Michael as the endorser
+# select all rows that have Michael as the endorser (base R)
 CompassRows2 <- filter(CompassColumns[grep("*BAT117", CompassColumns$Endorser.Name),])
 
 # combine all of CompassRows1 and CompassRows2 
-CompassRows3 <- bind_rows(CompassRows1, CompassRows2)
+CompassRows3 <- bind_rows(CompassRows0, CompassRows1, CompassRows2)
 
 # add a couple of blank columns for presentation
 CompassRows3["Blank1"] = " "
